@@ -1,34 +1,33 @@
 <img src="src/assets/media/favicon.png" width="120" align="right" />
 
-# SugarCube Starter
+# Spindle Starter
 
-The easiest starter kit for building SugarCube stories with Twine / Tweego.
+The easiest starter kit for building [Spindle](https://rohal12.github.io/spindle/) stories with [twee-ts](https://github.com/rohal12/twee-ts).
 
-## 🎨 Features
+## Features
 
-- Automatic Tweego & SugarCube Install ✅
-- Fully Configurable ✅
-- Automatic Builds ✅
-- Live Reload with Browser-Sync ✅
-- CSS Injection (no full reload) ✅
-- Directory for custom fonts ✅
-- Directory for third-party scripts ✅
-- Up to date packages and frameworks ✅
+- No binary downloads — pure npm packages
+- Automatic Builds
+- Live Reload with Browser-Sync
+- CSS Injection (no full reload)
+- Directory for custom fonts
+- Directory for third-party scripts
+- Up to date packages and frameworks
 
-## 🗃 Tech Stack
+## Tech Stack
 
-Built in to this template are a number of frameworks to get you going.
-
+- [Spindle](https://rohal12.github.io/spindle/) — Preact-based Twine story format
+- [twee-ts](https://github.com/rohal12/twee-ts) — TypeScript Twee compiler
 - [Vite](https://vitejs.dev/) — Fast build tooling
 - [TypeScript](https://www.typescriptlang.org/)
 - [Sass](https://sass-lang.com/) with [Modern CSS Support](https://github.com/csstools/postcss-preset-env#readme)
 - [Browser-Sync](https://browsersync.io/) — Live reloading
 
-## ℹ Requirements
+## Requirements
 
-- [Node.js](https://nodejs.org/en/) 18+
+- [Node.js](https://nodejs.org/en/) 22+
 
-## 🚀 Getting Started
+## Getting Started
 
 1. Clone the repository
    ```
@@ -43,26 +42,20 @@ Built in to this template are a number of frameworks to get you going.
    npm start
    ```
 
-**New to SugarCube?**
-
-- Check out our [SugarCube Basics](https://github.com/nijikokun/sugarcube-starter/wiki/SugarCube-Basics)
-
-## 👩‍💻 Commands
+## Commands
 
 | Command | Description |
 |---------|-------------|
 | `npm start` | Start development server with live reload |
 | `npm run dev` | Same as `npm start` |
 | `npm run build` | Production build to `dist/` |
-| `npm run tweego` | Run tweego manually |
-| `npm run tweego:install` | Install/reinstall tweego |
+| `npm run preview` | Preview production build |
 
-## 📁 Directory Structure
+## Directory Structure
 
 ```
 .build/              # Build scripts
-├── dev.ts           # Development server
-└── tweego.ts        # Tweego installer & runner
+└── dev.ts           # Development server
 
 src/                 # Source files
 ├── assets/
@@ -76,55 +69,16 @@ src/                 # Source files
 └── head-content.html
 
 dist/                # Compiled output (auto-generated)
-.tweego/             # Tweego installation (auto-generated)
+storyformats/        # Symlink to spindle format (auto-generated)
 ```
 
-## 🙋‍♂️ How To
+## How To
 
 <details>
-<summary>How do I disable Debug View?</summary>
+<summary>How do I disable Test Mode?</summary>
 <p>
 
-Debug View is automatically enabled in development and disabled in production builds (`npm run build`).
-
-To disable it in development, create `src/story/PassageReady.twee`:
-
-```js
-:: PassageReady
-<<run DebugView.disable()>>
-```
-
-</p>
-</details>
-
----
-
-<details>
-<summary>How should I initialize variables?</summary>
-<p>
-
-Use the [`StoryInit`](https://www.motoslave.net/sugarcube/2/docs/#special-passage-storyinit) passage in `src/story/Start.twee`:
-
-```ejs
-:: StoryInit
-<<set $health = 100>>
-<<set $maxHealth = 100>>
-
-:: Start
-
-HP: <<= $health>> / <<= $maxHealth>>
-```
-
-</p>
-</details>
-
----
-
-<details>
-<summary>How do I install macros?</summary>
-<p>
-
-Macros scripts and styles go into `src/assets/vendor`
+Test mode is automatically enabled in development and disabled in production builds (`npm run build`).
 
 </p>
 </details>
@@ -165,31 +119,21 @@ Replace `YOUR_TAG_HERE` with your Google Analytics ID.
 </p>
 </details>
 
-## 🤝 Helpful Resources
+## Resources
 
-**Official Resources**
-- [SugarCube Docs](https://www.motoslave.net/sugarcube/2/docs/)
-- [Niji's SugarCube Basics](https://github.com/nijikokun/sugarcube-starter/wiki/SugarCube-Basics)
+- [Spindle Documentation](https://rohal12.github.io/spindle/)
+- [twee-ts Documentation](https://github.com/rohal12/twee-ts)
+- [Twee 3 Specification](https://github.com/iftechfoundation/twine-specs/blob/master/twee-3-spec.md)
 
-**Third-Party Macros**
-- [Chapel's Custom Macro Collection](https://github.com/ChapelR/custom-macros-for-sugarcube-2)
-- [Hogart's SugarCube Macros and Goodies](https://github.com/hogart/sugar-cube-utils)
-- [SjoerdHekking's Custom Macros](https://github.com/SjoerdHekking/custom-macros-sugarcube2)
-- [GwenTastic's Custom Macros](https://github.com/GwenTastic/Custom-Macros-for-Sugarcube)
-- [Cycy Custom Macros](https://github.com/cyrusfirheir/cycy-wrote-custom-macros)
-- [Hituro's Macro Repository](https://github.com/hituro/hituro-makes-macros)
-- [HiEv SugarCube Sample Code](https://twine.hiev-heavy-ind.com/)
-- [Akjosch SugarCube Resources](https://github.com/Akjosch/sugarcube-modules)
-- [Mike Westhad SugarCube Resources](https://github.com/mikewesthad/twine-resources)
-- [HiEv Universal Inventory](https://github.com/HiEv/UInv)
+## Acknowledgements
 
-## 💜 Acknowledgements
+Based on [sugarcube-starter](https://github.com/nijikokun/sugarcube-starter) by [@nijikokun](https://github.com/nijikokun) (Nijiko Yonskai).
 
-We are grateful to these individuals for their ideas and contributions.
+Thanks also to these individuals for their ideas and contributions.
 
 - [@ryceg](https://github.com/ryceg)
 - [@cyrusfirheir](https://github.com/cyrusfirheir)
 
-## 📝 License
+## License
 
-Licensed under the MIT License.
+Licensed under the [Unlicense](https://unlicense.org/).

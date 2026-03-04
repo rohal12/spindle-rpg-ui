@@ -16,7 +16,7 @@
     "module": "ESNext",
     "target": "ESNext",
     "allowJs": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "rootDir": "src/assets/app",
     "lib": [
       "ES2015",

@@ -1,12 +1,23 @@
 import { defineConfig, type Plugin } from 'vite';
 import { resolve } from 'path';
-import { runTweego } from './.build/tweego.ts';
+import { compileToFile } from '@rohal12/twee-ts';
 
-function tweegoPlugin(): Plugin {
+function spindlePlugin(): Plugin {
   return {
-    name: 'vite-plugin-tweego',
-    closeBundle() {
-      runTweego();
+    name: 'vite-plugin-spindle',
+    async closeBundle() {
+      await compileToFile({
+        sources: ['src/story'],
+        outFile: 'dist/index.html',
+        formatPaths: [resolve(import.meta.dirname!, 'storyformats')],
+        modules: [
+          'dist/styles/app.bundle.css',
+          'dist/scripts/app.bundle.js',
+        ],
+        headFile: 'src/head-content.html',
+        testMode: process.env.NODE_ENV !== 'production',
+      });
+      console.log('[spindle] Story compiled.\n');
     },
   };
 }
@@ -37,5 +48,5 @@ export default defineConfig({
   css: { devSourcemap: true },
   preview: { port: 4321 },
 
-  plugins: [tweegoPlugin()],
+  plugins: [spindlePlugin()],
 });

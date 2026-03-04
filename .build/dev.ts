@@ -2,7 +2,7 @@ import { build } from 'vite';
 import chokidar from 'chokidar';
 import { resolve } from 'path';
 import browserSync from 'browser-sync';
-import { runTweego } from './tweego.ts';
+import { compileToFile } from '@rohal12/twee-ts';
 import fs from 'fs';
 
 // Colors for console output
@@ -30,6 +30,28 @@ function debounce<T extends (...args: any[]) => void>(fn: T, ms: number): T {
     }) as T;
 }
 
+async function compileStory(): Promise<{ success: boolean; error?: string }> {
+    try {
+        await compileToFile({
+            sources: ['src/story'],
+            outFile: 'dist/index.html',
+            formatPaths: [resolve(process.cwd(), 'storyformats')],
+            modules: [
+                'dist/styles/app.bundle.css',
+                'dist/scripts/app.bundle.js',
+            ],
+            headFile: 'src/head-content.html',
+            testMode: true,
+        });
+        log('spindle', c.green, 'Story compiled.');
+        return { success: true };
+    } catch (e: any) {
+        const error = e.message || String(e);
+        log('spindle', c.magenta, `Build failed:\n${error}`);
+        return { success: false, error };
+    }
+}
+
 async function dev() {
     const cwd = process.cwd();
 
@@ -43,10 +65,10 @@ async function dev() {
         initialBuildFailed = true;
     }
 
-    // Ensure fallback index.html exists if tweego failed completely
+    // Ensure fallback index.html exists if compile failed completely
     const indexHtmlPath = resolve(cwd, 'dist/index.html');
     if (!fs.existsSync(indexHtmlPath)) {
-        log('dev', c.yellow, 'Generating fallback index.html for error overlay...');
+        log('dev', c.yellow, 'Generating fallback index.html...');
         if (!fs.existsSync(resolve(cwd, 'dist'))) fs.mkdirSync(resolve(cwd, 'dist'));
         fs.writeFileSync(indexHtmlPath, `
 <!DOCTYPE html>
@@ -59,7 +81,7 @@ async function dev() {
 </head>
 <body>
   <h2>Build Failed</h2>
-  <p>Check the console or error overlay for details.</p>
+  <p>Check the console for details.</p>
   <script type="module" src="scripts/app.bundle.js"></script>
 </body>
 </html>`);
@@ -70,15 +92,10 @@ async function dev() {
     const bs = browserSync.create();
 
     // Debounced rebuild functions
-    const rebuildTweego = debounce(() => {
-        const result = runTweego();
+    const rebuildStory = debounce(async () => {
+        const result = await compileStory();
         if (result.success) {
             bs.reload();
-            (bs as any).sockets.emit('tweego:success');
-        } else {
-            (bs as any).sockets.emit('tweego:error', {
-                message: result.error || 'Unknown error occurred during Tweego build.'
-            });
         }
     }, 100);
 
@@ -96,13 +113,12 @@ async function dev() {
             logLevel: 'silent',
             files: [
                 // CSS injection (no full reload)
-                { match: 'dist/**/*.css', fn: (event, file) => bs.reload('*.css') },
+                { match: 'dist/**/*.css', fn: (_event: string, _file: string) => bs.reload('*.css') },
             ],
         }, () => {
             log('server', c.green, 'http://localhost:4321');
             if (initialBuildFailed) {
-                // Trigger rebuild to capture and emit error
-                setTimeout(rebuildTweego, 1000);
+                setTimeout(rebuildStory, 1000);
             }
             resolve();
         });
@@ -127,7 +143,7 @@ async function dev() {
         .on('ready', () => log('watch', c.cyan, 'Ready'))
         .on('change', (path) => {
             log('change', c.yellow, path.replace(cwd, '.'));
-            rebuildTweego();
+            rebuildStory();
         })
         .on('error', (err) => log('error', c.magenta, String(err)));
 

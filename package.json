@@ -1,36 +1,30 @@
 {
-  "name": "sugarcube-starter",
+  "name": "spindle-starter",
   "version": "2.0.0",
-  "description": "Modern Starter kit for SugarCube",
+  "description": "Modern Starter kit for Spindle",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "npm run dev",
     "dev": "tsx .build/dev.ts",
-    "build": "cross-env NODE_ENV=production vite build",
-    "tweego": "tsx .build/tweego.ts --build",
-    "tweego:install": "tsx .build/tweego.ts --install"
+    "build": "vite build",
+    "preview": "vite preview",
+    "postinstall": "mkdir -p storyformats && ln -sfn ../node_modules/@rohal12/spindle/dist/pkg storyformats/spindle"
   },
   "keywords": [
     "twine",
-    "sugarcube",
+    "spindle",
     "starter-kit",
-    "boilerplate",
-    "tweego"
+    "twee-ts"
   ],
-  "author": "Nijiko Yonskai",
-  "license": "MIT",
+  "author": "Rohal12",
+  "license": "Unlicense",
   "devDependencies": {
+    "@rohal12/spindle": "^0.3.0",
+    "@rohal12/twee-ts": "^1.1.1",
     "@types/browser-sync": "^2.29.1",
-    "@types/cross-spawn": "^6.0.6",
-    "@types/decompress": "^4.2.7",
     "browser-sync": "^3.0.4",
     "chokidar": "^5.0.0",
-    "cross-env": "^7.0.3",
-    "cross-spawn": "^7.0.6",
-    "decompress": "^4.2.1",
-    "del": "^8.0.1",
-    "got": "^14.4.1",
     "postcss": "^8.4.49",
     "postcss-csso": "^6.0.1",
     "postcss-preset-env": "^10.1.3",
