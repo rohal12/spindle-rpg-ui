@@ -26,11 +26,11 @@ You wake up in a dark room.
 [[Check your pockets->Inventory]]
 ```
 
-| Syntax | Display Text | Goes To |
-|--------|-------------|---------|
-| `[[Look around]]` | Look around | Look around |
-| `[[Open the door\|Hallway]]` | Open the door | Hallway |
-| `[[Check your pockets->Inventory]]` | Check your pockets | Inventory |
+| Syntax                              | Display Text       | Goes To     |
+| ----------------------------------- | ------------------ | ----------- |
+| `[[Look around]]`                   | Look around        | Look around |
+| `[[Open the door\|Hallway]]`        | Open the door      | Hallway     |
+| `[[Check your pockets->Inventory]]` | Check your pockets | Inventory   |
 
 The first form uses the passage name as the link text. The other two let you show different text than the passage you're linking to.
 
@@ -49,11 +49,13 @@ Tags are useful for categorization and can be used by the story format for speci
 
 Some passage names have special meaning:
 
-| Passage | Purpose |
-|---------|---------|
-| `StoryTitle` | The title shown in the browser tab and story UI |
-| `StoryData` | JSON metadata (IFID, format, format-version) |
-| `Start` | The first passage the reader sees (default) |
+| Passage          | Purpose                                         |
+| ---------------- | ----------------------------------------------- |
+| `StoryTitle`     | The title shown in the browser tab and story UI |
+| `StoryData`      | JSON metadata (IFID, format, format-version)    |
+| `Start`          | The first passage the reader sees (default)     |
+| `StoryVariables` | Declares all story variables and their defaults |
+| `StoryInterface` | Customizes the page layout                      |
 
 ```txt
 :: StoryTitle
@@ -62,6 +64,47 @@ My Adventure
 :: Start
 The story begins here.
 ```
+
+### StoryVariables
+
+The `StoryVariables` passage declares all story variables and their default values. One declaration per line, prefixed with `$`:
+
+```txt
+:: StoryVariables
+$health = 100
+$name = "Adventurer"
+$inventory = ["rusty key", "torch"]
+$visited_rooms = 0
+$character = { strength: 5, dexterity: 5, intelligence: 5 }
+```
+
+When this passage is present, Spindle validates all variable references at startup and warns about any undeclared variables. Variables prefixed with `$` persist across passages and are included in saves. Temporary variables prefixed with `_` reset on each passage navigation.
+
+### StoryInterface
+
+The `StoryInterface` passage lets you replace the entire page layout. By default, Spindle uses this structure:
+
+```txt
+:: StoryInterface
+<header class="story-menubar">
+  {story-title}{back}{forward}{restart}{quicksave}{quickload}{saves}{settings}
+</header>
+{passage}
+```
+
+The `{passage}` macro renders the current passage content and updates automatically when the reader navigates. The other macros in curly braces render the built-in UI components (title, navigation buttons, save/load, settings).
+
+You can rearrange, remove, or wrap these components however you like. For example, a minimal interface with just the passage and a restart button:
+
+```txt
+:: StoryInterface
+{passage}
+<footer>{restart}</footer>
+```
+
+::: warning
+Your `StoryInterface` must include `{passage}` — without it, no passage content will be displayed.
+:::
 
 ## Organizing Files
 
