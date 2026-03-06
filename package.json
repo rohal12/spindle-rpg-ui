@@ -9,6 +9,8 @@
     "dev": "tsx .build/dev.ts",
     "build": "vite build",
     "preview": "vite preview",
+    "publish:pages": "bash scripts/publish.sh pages",
+    "publish:itch": "bash scripts/publish.sh itch",
     "postinstall": "mkdir -p storyformats && ln -sfn ../node_modules/@rohal12/spindle/dist/pkg storyformats/spindle"
   },
   "keywords": [
@@ -20,8 +22,8 @@
   "author": "Rohal12",
   "license": "Unlicense",
   "devDependencies": {
-    "@rohal12/spindle": "^0.3.1",
-    "@rohal12/twee-ts": "^1.1.2",
+    "@rohal12/spindle": "^0.7.0",
+    "@rohal12/twee-ts": "^1.13.0",
     "@types/browser-sync": "^2.29.1",
     "browser-sync": "^3.0.4",
     "chokidar": "^5.0.0",
