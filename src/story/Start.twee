@@ -1,5 +1,517 @@
 :: StoryTitle
-Hello There!
+Ashen Covenant
 
 :: Start
-Hello World! :)
+# The Crossroads
+
+The wind carries the scent of ash and pine. You stand at a weathered crossroads where three paths diverge beneath a sky bruised purple with twilight.
+
+A wooden signpost, half-rotted, leans into the earth. Its arms point in three directions:
+
+**North** -- *The Ruins of Kael'thar* -- carved letters barely legible beneath creeping moss.
+
+**East** -- *Thornwood* -- the paint here is fresher, but someone has scratched a warning sigil beneath.
+
+**South** -- *Millhaven Village* -- a safer path, by the look of it.
+
+Your pack weighs heavy on your shoulders. The road has been long.
+
+[[Head north toward the ruins|Ruins Approach]]
+[[Take the eastern path into the Thornwood|Thornwood Entry]]
+[[Return south to Millhaven|Millhaven]]
+
+:: Ruins Approach
+# The Ruins of Kael'thar
+
+{set $stamina = $stamina - 5}
+
+The northern road climbs steeply through broken terrain. Shattered columns rise from the earth like the ribs of some vast buried creature. The air grows colder with each step.
+
+You can see the entrance to the ruins ahead -- a great archway carved with symbols you half-recognize from old texts. The Ashen Covenant's mark is scored into the keystone, fresh and deliberate.
+
+Something moves in the shadows beyond the arch.
+
+{set $inCombat = true; $currentEnemy = "Covenant Sentinel"; $enemyHp = 45; $enemyHpMax = 45}
+
+A figure in dark robes steps into view, a blade of crackling violet energy materializing in its hand. A **Covenant Sentinel** blocks your path.
+
+*"Turn back, outsider. This place is not for the uninitiated."*
+
+[[Draw your sword|Combat]]
+[[Try to reason with the sentinel|Sentinel Parley]]
+
+:: Sentinel Parley
+# Words Before Blades
+
+You raise your hands, palms open.
+
+*"I seek knowledge, not conflict. The Covenant's work here -- I would understand it."*
+
+The sentinel pauses. Behind the mask, you sense hesitation.
+
+*"Understanding is... not what they offer. Only obedience."* The violet blade flickers. *"I was like you, once. Curious."*
+
+{set $mp = $mp - 5}
+
+You feel a pulse of arcane energy -- the sentinel is probing your magical signature. Your mana dips slightly from the resonance.
+
+*"You carry the old fire. Interesting."*
+
+[[Press further -- ask about the Covenant's plans|Sentinel Info]]
+[[This could be a trap -- ready your weapon|Combat]]
+
+:: Sentinel Info
+The sentinel lowers its blade.
+
+*"They seek the Ember Throne, buried beneath these ruins. A seat of power from the age before the Sundering. If they raise it..."* The figure trails off, looking back into the darkness.
+
+*"I will not stop you. But know this -- the deeper chambers are warded. You will need the Runekey."*
+
+{do}
+  $journal.push({ title: "The Ember Throne", status: "active", text: "The Ashen Covenant seeks the Ember Throne beneath Kael'thar. A sentinel warned that deeper chambers require a Runekey." });
+{/do}
+
+The sentinel steps aside, dissolving into shadow. The archway lies open before you.
+
+*New journal entry: The Ember Throne*
+
+[[Enter the ruins|Deep Ruins]]
+[[Return to the crossroads|Start]]
+
+:: Combat
+# Battle!
+
+{set $stamina = $stamina - 10}
+
+Steel meets arcane energy with a shower of sparks. The Covenant Sentinel is fast -- faster than you expected.
+
+**{$currentEnemy}** HP: {$enemyHp}/{$enemyHpMax}
+
+The sentinel lunges with its violet blade. You need to act quickly.
+
+[[Strike with your sword -- basic attack|Combat Attack]]
+[[Cast Flame Arc|Combat Flame Arc]]
+[[Use Aegis Ward, then counter|Combat Defend]]
+
+:: Combat Attack
+{do}
+  var dmg = 12 + Math.floor(Math.random() * 6);
+  $enemyHp = Math.max(0, $enemyHp - dmg);
+  var playerDmg = 8 + Math.floor(Math.random() * 4);
+  $hp = Math.max(0, $hp - playerDmg);
+{/do}
+
+Your blade finds a gap in the sentinel's guard. You deal damage!
+
+The sentinel retaliates with a slash of violet energy that catches your shoulder. You take damage.
+
+{if $enemyHp <= 0}
+The sentinel staggers, its blade flickering out. It drops to one knee.
+
+*"Perhaps... you are worthy after all."*
+
+The figure dissolves into motes of violet light. The way is clear.
+
+{set $inCombat = false; $currentEnemy = ""; $xp = $xp + 150; $gold = $gold + 25}
+
+*+150 XP, +25 Gold*
+
+[[Enter the ruins|Deep Ruins]]
+{else}
+**Sentinel** HP: {$enemyHp}/{$enemyHpMax}
+
+The battle continues. What's your next move?
+
+[[Strike again|Combat Attack]]
+[[Cast Flame Arc|Combat Flame Arc]]
+[[Use a Health Potion|Combat Heal]]
+{/if}
+
+:: Combat Flame Arc
+{if $mp < 12}
+You don't have enough mana to cast Flame Arc!
+
+[[Strike with your sword instead|Combat Attack]]
+[[Use a Mana Elixir|Combat Mana]]
+{else}
+{do}
+  $mp = $mp - 12;
+  var dmg = 22 + Math.floor(Math.random() * 8);
+  $enemyHp = Math.max(0, $enemyHp - dmg);
+{/do}
+
+You channel fire through your blade in a blazing arc. The sentinel recoils as flames wash over it.
+
+{if $enemyHp <= 0}
+The sentinel collapses under the fiery assault, its form unraveling into embers and shadow.
+
+{set $inCombat = false; $currentEnemy = ""; $xp = $xp + 150; $gold = $gold + 25}
+
+*+150 XP, +25 Gold*
+
+[[Enter the ruins|Deep Ruins]]
+{else}
+**Sentinel** HP: {$enemyHp}/{$enemyHpMax}
+
+[[Strike with your sword|Combat Attack]]
+[[Cast Flame Arc again|Combat Flame Arc]]
+[[Use Aegis Ward|Combat Defend]]
+{/if}
+{/if}
+
+:: Combat Defend
+{if $mp >= 8}
+{do}
+  $mp = $mp - 8;
+  var reducedDmg = 2 + Math.floor(Math.random() * 3);
+  $hp = Math.max(0, $hp - reducedDmg);
+{/do}
+
+You raise a shimmering ward just as the sentinel strikes. The violet blade glances off your barrier, dealing minimal damage.
+{else}
+{do}
+  var playerDmg = 8 + Math.floor(Math.random() * 4);
+  $hp = Math.max(0, $hp - playerDmg);
+{/do}
+
+You try to raise a ward but lack the mana. The sentinel's blade strikes true.
+{/if}
+
+Now -- counter-attack!
+
+[[Strike with your sword|Combat Attack]]
+[[Cast Flame Arc|Combat Flame Arc]]
+
+:: Combat Heal
+{do}
+  var potion = $inventory.find(function(i) { return i.name === "Health Potion"; });
+  if (potion && potion.qty > 0) {
+    potion.qty--;
+    $hp = Math.min($hpMax, $hp + 25);
+  }
+{/do}
+
+You uncork a health potion and drink deeply. Warmth floods through you as wounds begin to close.
+
+*+25 HP*
+
+The sentinel doesn't wait. It strikes while you're recovering!
+
+{do}
+  var playerDmg = 6 + Math.floor(Math.random() * 3);
+  $hp = Math.max(0, $hp - playerDmg);
+{/do}
+
+[[Strike back|Combat Attack]]
+[[Cast Flame Arc|Combat Flame Arc]]
+
+:: Combat Mana
+{do}
+  var elixir = $inventory.find(function(i) { return i.name === "Mana Elixir"; });
+  if (elixir && elixir.qty > 0) {
+    elixir.qty--;
+    $mp = Math.min($mpMax, $mp + 15);
+  }
+{/do}
+
+You drink a mana elixir. Arcane energy crackles through your veins.
+
+*+15 MP*
+
+[[Cast Flame Arc now|Combat Flame Arc]]
+[[Strike with your sword|Combat Attack]]
+
+:: Deep Ruins
+# The Sunken Halls
+
+{set $stamina = $stamina - 3}
+
+Beyond the archway, stairs descend into blue-lit darkness. Crystalline veins in the walls pulse with a slow, breathing rhythm. The air tastes of ozone and ancient dust.
+
+The halls open into a vast chamber. At its center, a dais rises from a floor of cracked obsidian. Upon the dais rests a stone seat -- or the remains of one.
+
+The **Ember Throne**.
+
+Even broken, you can feel its power. Heat radiates from the fragments in waves, and the crystals in the walls glow brighter near it.
+
+But the throne is incomplete. Pieces are missing -- scattered, perhaps, when it was shattered ages ago.
+
+On the dais, you find a fragment of carved stone, still warm to the touch.
+
+{do}
+  $inventory.push({ name: "Throne Fragment", type: "quest", qty: 1, desc: "A piece of the Ember Throne. It pulses with residual heat and ancient power." });
+{/do}
+
+*Found: Throne Fragment*
+
+[[Examine the chamber more closely|Chamber Search]]
+[[Return to the surface|Start]]
+
+:: Chamber Search
+You search the chamber thoroughly.
+
+{set $stamina = $stamina - 5}
+
+Behind the dais, partially hidden by rubble, you find a passage leading deeper underground. The Ashen Covenant's marks are everywhere here -- they've been excavating.
+
+You also find a locked chest. The lock bears the same rune patterns as the arch above.
+
+{do}
+  $inventory.push({ name: "Rusted Key", type: "quest", qty: 1, desc: "Found in the ruins of Kael'thar. Might open something deeper in." });
+  $gold = $gold + 50;
+  $xp = $xp + 100;
+{/do}
+
+Inside the chest: **50 gold** and a **Rusted Key**.
+
+The passage beckons, but you can hear activity below. The Covenant is here in force.
+
+This is as far as you should go alone.
+
+*+100 XP, +50 Gold*
+
+[[Return to the surface|Start]]
+
+:: Thornwood Entry
+# The Thornwood
+
+{set $stamina = $stamina - 4}
+
+The eastern path plunges into dense forest. The canopy closes overhead until only slivers of twilight pierce through. Thornbushes crowd the trail, catching at your cloak.
+
+You hear birdsong -- then silence. The kind of silence that means something else is listening.
+
+A broken cart lies overturned on the path ahead. Goods are scattered -- bolts of cloth, smashed jars, a merchant's ledger soaked with rain.
+
+This must be **Aldric's** cart.
+
+[[Search the wreckage|Thornwood Search]]
+[[Follow the drag marks leading off the path|Thornwood Trail]]
+
+:: Thornwood Search
+You sift through the wreckage.
+
+{do}
+  $inventory.push({ name: "Aldric's Ledger", type: "quest", qty: 1, desc: "Water-damaged but legible. Records trade routes and a mysterious large order from 'K.'" });
+  $gold = $gold + 15;
+{/do}
+
+Among the debris you find Aldric's ledger and a small pouch of **15 gold** that the bandits missed.
+
+The ledger's last entry mentions a large order placed by someone identified only as "K." -- paid in advance, for delivery to the northern ruins.
+
+A connection to the Covenant, perhaps?
+
+*Found: Aldric's Ledger, +15 Gold*
+
+[[Follow the drag marks|Thornwood Trail]]
+[[Return to the crossroads|Start]]
+
+:: Thornwood Trail
+# Following the Trail
+
+{set $stamina = $stamina - 6}
+
+The drag marks lead deep into the undergrowth. Broken branches and scuffed earth tell the story -- Aldric was taken, not killed. At least not here.
+
+After a quarter hour of tracking, you find a clearing. A crude camp sits in its center -- bandit territory. Two figures warm themselves by a low fire. Behind them, tied to a tree, sits a man in merchant's clothes.
+
+**Aldric** is alive.
+
+The bandits haven't noticed you yet.
+
+[[Sneak closer and free Aldric|Thornwood Stealth]]
+[[Charge in with blade drawn|Thornwood Fight]]
+
+:: Thornwood Stealth
+{set $stamina = $stamina - 8}
+
+You circle the camp, keeping to the shadows. Your training as a Spellblade serves you well -- you reach Aldric without alerting the guards.
+
+*"Quiet,"* you whisper, cutting his bonds. *"Can you run?"*
+
+Aldric nods, eyes wide with relief.
+
+You guide him back through the trees. By the time the bandits notice, you're long gone.
+
+{do}
+  var quest = $journal.find(function(j) { return j.title === "The Missing Merchant"; });
+  if (quest) quest.status = "complete";
+  $xp = $xp + 200;
+  $gold = $gold + 75;
+{/do}
+
+Back on the main road, Aldric thanks you profusely and presses a reward into your hands.
+
+*"The Covenant -- they're the ones who hired those thugs. To stop my deliveries, to control the trade routes. Be careful."*
+
+*Quest Complete: The Missing Merchant*
+*+200 XP, +75 Gold*
+
+[[Return to the crossroads|Start]]
+[[Head to Millhaven with Aldric|Millhaven]]
+
+:: Thornwood Fight
+# Bandit Ambush!
+
+{set $inCombat = true; $currentEnemy = "Forest Bandits"; $enemyHp = 35; $enemyHpMax = 35; $stamina = $stamina - 5}
+
+You burst from the treeline with your sword drawn. The bandits scramble for their weapons.
+
+*"Get 'im!"* one shouts, pulling a notched axe.
+
+[[Strike the nearest bandit|Combat Attack]]
+[[Cast Flame Arc at both of them|Combat Flame Arc]]
+
+:: Millhaven
+# Millhaven Village
+
+{set $inCombat = false}
+
+The village of Millhaven sits in a gentle valley, its thatched roofs and stone walls a welcome sight. Lanterns flicker in windows as evening settles in.
+
+The **Rusted Flagon** inn stands at the village center, warm light and the sound of a fiddle spilling from its open door. Nearby, a **blacksmith's** forge still glows with dying embers, and the **village elder's** house sits atop a small hill.
+
+{do}
+  $hp = Math.min($hpMax, $hp + 10);
+  $stamina = Math.min($staminaMax, $stamina + 15);
+{/do}
+
+The peaceful atmosphere restores some of your strength.
+
+*+10 HP, +15 Stamina*
+
+[[Visit the Rusted Flagon inn|Inn]]
+[[Check the blacksmith's shop|Blacksmith]]
+[[Return to the crossroads|Start]]
+
+:: Inn
+# The Rusted Flagon
+
+The inn is warm and crowded. Bram, the innkeeper -- the same man whose rat problem you solved -- waves you over with a grin.
+
+*"Kaelen! Good to see you alive. The usual?"*
+
+He sets a mug of ale and a bowl of stew before you. On the house, naturally.
+
+{do}
+  $hp = Math.min($hpMax, $hp + 20);
+  $mp = Math.min($mpMax, $mp + 10);
+  $stamina = $staminaMax;
+{/do}
+
+The meal restores you fully.
+
+*HP, MP, and Stamina restored!*
+
+A hooded figure in the corner catches your eye. They've been watching you since you walked in.
+
+[[Approach the hooded figure|Inn Stranger]]
+[[Ask Bram for rumors|Inn Rumors]]
+[[Leave the inn|Millhaven]]
+
+:: Inn Stranger
+The figure pulls back their hood as you approach. A woman with sharp features and ink-black hair. She wears the sigil of the Cartographers' Guild.
+
+*"You've been to the ruins. I can smell the ozone on you."*
+
+She slides a rolled parchment across the table.
+
+*"I'm Sera. I've been mapping the Covenant's movements for months. They're close to finding all the throne fragments. When they do..."*
+
+She doesn't finish the sentence.
+
+{do}
+  $inventory.push({ name: "Sera's Map", type: "quest", qty: 1, desc: "A detailed map of Covenant activity in the region. Marks three key sites." });
+  $journal.push({ title: "The Cartographer", status: "active", text: "Sera of the Cartographers' Guild is tracking the Ashen Covenant. She gave you a map of their operations." });
+{/do}
+
+*Found: Sera's Map*
+*New journal entry: The Cartographer*
+
+[[Ask Sera to join you|Sera Join]]
+[[Thank her and leave|Millhaven]]
+
+:: Sera Join
+Sera considers for a moment, then nods.
+
+*"I've been watching from the shadows long enough. Let's put an end to this."*
+
+She stands, adjusting a pair of daggers at her belt that you hadn't noticed before. Cartographer, indeed.
+
+*Sera has joined your party.*
+
+[[Leave the inn|Millhaven]]
+
+:: Inn Rumors
+Bram leans close, lowering his voice.
+
+*"Strange folk passing through lately. Robed types, heading north. They pay well and say nothing. And there's been lights in the sky over the ruins at night -- purple, like lightning, but with no thunder."*
+
+He pauses, polishing a glass.
+
+*"Oh, and that old hermit who lives past the Thornwood? Hasn't been seen in weeks. Some say the forest itself swallowed him."*
+
+[[Ask about the hermit|Inn Hermit]]
+[[Leave the inn|Millhaven]]
+
+:: Inn Hermit
+*"Name's Theron. Used to come in once a month for supplies. Odd fellow -- talked to trees, collected mushrooms. Harmless. But he knew things about the old ruins that nobody else did."*
+
+{do}
+  $journal.push({ title: "The Missing Hermit", status: "active", text: "Theron, a hermit living past the Thornwood, has gone missing. He had knowledge of the ancient ruins." });
+{/do}
+
+*New journal entry: The Missing Hermit*
+
+[[Return to the inn|Inn]]
+
+:: Blacksmith
+# Grenn's Forge
+
+The blacksmith, a broad-shouldered dwarf named Grenn, is banking his forge for the night. He eyes your blade critically.
+
+*"That edge has seen better days. I can sharpen it, or I've got some new stock if you're buying."*
+
+**Available:**
+- **Steel Longsword** -- 120 gold *(Upgrade from Iron)*
+- **Chainmail Vest** -- 200 gold *(Better protection)*
+- **Throwing Knives (5)** -- 40 gold
+
+{if $gold >= 120}
+[[Buy the Steel Longsword (120g)|Buy Sword]]
+{/if}
+{if $gold >= 40}
+[[Buy Throwing Knives (40g)|Buy Knives]]
+{/if}
+[[Just browsing, thanks|Millhaven]]
+
+:: Buy Sword
+{do}
+  var oldSword = $inventory.find(function(i) { return i.name === "Iron Longsword"; });
+  if (oldSword) {
+    oldSword.name = "Steel Longsword";
+    oldSword.desc = "A fine steel blade. Sharper and more durable than iron.";
+  }
+  $gold = $gold - 120;
+{/do}
+
+Grenn takes your old blade and hands you the steel replacement. The balance is superb.
+
+*"Treat her well and she'll return the favor."*
+
+*Upgraded: Steel Longsword (-120 Gold)*
+
+[[Back to Millhaven|Millhaven]]
+
+:: Buy Knives
+{do}
+  $inventory.push({ name: "Throwing Knives", type: "weapon", qty: 5, desc: "Small, balanced blades for ranged attacks." });
+  $gold = $gold - 40;
+{/do}
+
+Five gleaming throwing knives, perfectly balanced.
+
+*Purchased: Throwing Knives x5 (-40 Gold)*
+
+[[Back to Millhaven|Millhaven]]

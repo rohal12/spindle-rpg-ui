@@ -1,176 +1,126 @@
-import { build } from 'vite';
-import chokidar from 'chokidar';
-import { resolve } from 'path';
-import browserSync from 'browser-sync';
-import { compileToFile } from '@rohal12/twee-ts';
-import fs from 'fs';
+import { build } from "vite";
+import { resolve } from "path";
+import browserSync from "browser-sync";
+import { watch as tweeWatch } from "@rohal12/twee-ts";
+import fs from "fs";
 
 // Colors for console output
 const c = {
-    reset: '\x1b[0m',
-    dim: '\x1b[2m',
-    green: '\x1b[32m',
-    yellow: '\x1b[33m',
-    blue: '\x1b[34m',
-    magenta: '\x1b[35m',
-    cyan: '\x1b[36m',
+  reset: "\x1b[0m",
+  dim: "\x1b[2m",
+  green: "\x1b[32m",
+  yellow: "\x1b[33m",
+  blue: "\x1b[34m",
+  magenta: "\x1b[35m",
+  cyan: "\x1b[36m",
 };
 
 function log(prefix: string, color: string, msg: string) {
-    const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-    console.log(`${c.dim}${time}${c.reset} ${color}[${prefix}]${c.reset} ${msg}`);
+  const time = new Date().toLocaleTimeString("en-US", { hour12: false });
+  console.log(`${c.dim}${time}${c.reset} ${color}[${prefix}]${c.reset} ${msg}`);
 }
 
 // Debounce helper
 function debounce<T extends (...args: any[]) => void>(fn: T, ms: number): T {
-    let timer: NodeJS.Timeout;
-    return ((...args: any[]) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => fn(...args), ms);
-    }) as T;
-}
-
-async function compileStory(): Promise<{ success: boolean; error?: string }> {
-    try {
-        await compileToFile({
-            sources: ['src/story'],
-            outFile: 'dist/index.html',
-            formatPaths: [resolve(process.cwd(), 'storyformats')],
-            modules: [
-                'dist/styles/app.bundle.css',
-                'dist/scripts/app.bundle.js',
-            ],
-            headFile: 'src/head-content.html',
-            testMode: true,
-        });
-        log('spindle', c.green, 'Story compiled.');
-        return { success: true };
-    } catch (e: any) {
-        const error = e.message || String(e);
-        log('spindle', c.magenta, `Build failed:\n${error}`);
-        return { success: false, error };
-    }
+  let timer: NodeJS.Timeout;
+  return ((...args: any[]) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  }) as T;
 }
 
 async function dev() {
-    const cwd = process.cwd();
+  const cwd = process.cwd();
 
-    // Initial build
-    log('dev', c.blue, 'Building...');
-    let initialBuildFailed = false;
-    try {
-        await build({ configFile: './vite.config.ts', logLevel: 'warn' });
-    } catch (e) {
-        log('dev', c.magenta, 'Initial build failed, starting server anyway...');
-        initialBuildFailed = true;
-    }
+  // Initial Vite asset build
+  log("dev", c.blue, "Building...");
+  try {
+    await build({ configFile: "./vite.config.ts", logLevel: "warn" });
+  } catch (e) {
+    log("dev", c.magenta, "Initial build failed, starting server anyway...");
+  }
 
-    // Ensure fallback index.html exists if compile failed completely
-    const indexHtmlPath = resolve(cwd, 'dist/index.html');
-    if (!fs.existsSync(indexHtmlPath)) {
-        log('dev', c.yellow, 'Generating fallback index.html...');
-        if (!fs.existsSync(resolve(cwd, 'dist'))) fs.mkdirSync(resolve(cwd, 'dist'));
-        fs.writeFileSync(indexHtmlPath, `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Build Error</title>
-  <link rel="stylesheet" href="styles/app.bundle.css">
-  <style>body { background: #111; color: #888; font-family: sans-serif; padding: 2rem; }</style>
-</head>
-<body>
-  <h2>Build Failed</h2>
-  <p>Check the console for details.</p>
-  <script type="module" src="scripts/app.bundle.js"></script>
-</body>
-</html>`);
-        initialBuildFailed = true;
-    }
+  // Ensure dist directory exists
+  if (!fs.existsSync(resolve(cwd, "dist"))) fs.mkdirSync(resolve(cwd, "dist"));
 
-    // Start browser-sync
-    const bs = browserSync.create();
+  // Start browser-sync
+  const bs = browserSync.create();
 
-    // Debounced rebuild functions
-    const rebuildStory = debounce(async () => {
-        const result = await compileStory();
-        if (result.success) {
-            bs.reload();
-        }
-    }, 100);
+  const rebuildAssets = debounce(() => {
+    bs.reload();
+  }, 100);
 
-    const rebuildAssets = debounce(() => {
-        bs.reload();
-    }, 100);
+  // Start twee-ts incremental watcher
+  const tweeAbort = await tweeWatch({
+    sources: ["src/story"],
+    outFile: "dist/index.html",
+    formatPaths: [resolve(cwd, "storyformats")],
+    modules: ["dist/styles/app.bundle.css", "dist/scripts/app.bundle.js"],
+    headFile: "src/head-content.html",
+    testMode: true,
+    onBuild: (result) => {
+      log(
+        "spindle",
+        c.green,
+        `Story compiled. (${result.stats.passages} passages, ${result.stats.words} words)`,
+      );
+      bs.reload();
+    },
+    onError: (error) => {
+      log("spindle", c.magenta, `Build failed:\n${error.message}`);
+    },
+  });
 
-    await new Promise<void>((resolve) => {
-        bs.init({
-            server: './dist',
-            port: 4321,
-            open: true,
-            notify: false,
-            ui: false,
-            logLevel: 'silent',
-            files: [
-                // CSS injection (no full reload)
-                { match: 'dist/**/*.css', fn: (_event: string, _file: string) => bs.reload('*.css') },
-            ],
-        }, () => {
-            log('server', c.green, 'http://localhost:4321');
-            if (initialBuildFailed) {
-                setTimeout(rebuildStory, 1000);
-            }
-            resolve();
-        });
-    });
+  await new Promise<void>((resolve) => {
+    bs.init(
+      {
+        server: "./dist",
+        port: 4321,
+        open: true,
+        notify: false,
+        ui: false,
+        logLevel: "silent",
+        files: [
+          // CSS injection (no full reload)
+          {
+            match: "dist/**/*.css",
+            fn: (_event: string, _file: string) => bs.reload("*.css"),
+          },
+        ],
+      },
+      () => {
+        log("server", c.green, "http://localhost:4321");
+        resolve();
+      },
+    );
+  });
 
-    // Watch patterns
-    const watchPaths = [
-        resolve(cwd, 'src/story'),           // .twee files
-        resolve(cwd, 'src/head-content.html'), // head content
-    ];
+  // Watch JS/CSS with Vite
+  log("vite", c.magenta, "Watching assets...\n");
+  await build({
+    configFile: "./vite.config.ts",
+    build: { watch: {}, emptyOutDir: false },
+    logLevel: "warn",
+    plugins: [
+      {
+        name: "reload-on-build",
+        closeBundle() {
+          rebuildAssets();
+        },
+      },
+    ],
+  });
 
-    log('watch', c.cyan, `Watching: ${watchPaths.map(p => p.replace(cwd, '.')).join(', ')}`);
+  // Graceful shutdown
+  const cleanup = () => {
+    log("dev", c.blue, "Shutting down...");
+    tweeAbort.abort();
+    bs.exit();
+    process.exit(0);
+  };
 
-    const tweeWatcher = chokidar.watch(watchPaths, {
-        ignored: /(^|[\/\\])\../,
-        persistent: true,
-        usePolling: true,
-        interval: 300,
-    });
-
-    tweeWatcher
-        .on('ready', () => log('watch', c.cyan, 'Ready'))
-        .on('change', (path) => {
-            log('change', c.yellow, path.replace(cwd, '.'));
-            rebuildStory();
-        })
-        .on('error', (err) => log('error', c.magenta, String(err)));
-
-    // Watch JS/CSS with Vite
-    log('vite', c.magenta, 'Watching assets...\n');
-    await build({
-        configFile: './vite.config.ts',
-        build: { watch: {}, emptyOutDir: false },
-        logLevel: 'warn',
-        plugins: [{
-            name: 'reload-on-build',
-            closeBundle() {
-                rebuildAssets();
-            }
-        }]
-    });
-
-    // Graceful shutdown
-    const cleanup = () => {
-        log('dev', c.blue, 'Shutting down...');
-        tweeWatcher.close();
-        bs.exit();
-        process.exit(0);
-    };
-
-    process.on('SIGINT', cleanup);
-    process.on('SIGTERM', cleanup);
+  process.on("SIGINT", cleanup);
+  process.on("SIGTERM", cleanup);
 }
 
 dev().catch(console.error);

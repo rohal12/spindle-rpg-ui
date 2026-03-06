@@ -1,0 +1,20 @@
+:: StoryVariables
+$playerName = "Kaelen"
+$playerClass = "Spellblade"
+$level = 7
+$xp = 2840
+$xpMax = 4000
+$hp = 73
+$hpMax = 100
+$mp = 45
+$mpMax = 60
+$stamina = 88
+$staminaMax = 100
+$gold = 347
+$skills = [{ name: "Flame Arc", type: "attack", cost: 12, desc: "A sweeping arc of fire that damages all enemies in front." }, { name: "Aegis Ward", type: "defense", cost: 8, desc: "Creates a magical barrier that absorbs incoming damage." }, { name: "Shadow Step", type: "utility", cost: 15, desc: "Teleport behind an enemy, gaining advantage on your next strike." }, { name: "Mend Wounds", type: "heal", cost: 20, desc: "Channel healing energy to restore vitality." }, { name: "Frost Bind", type: "attack", cost: 10, desc: "Encase a target's legs in ice, immobilizing them." }, { name: "Arcane Sight", type: "utility", cost: 5, desc: "Reveal hidden objects and magical auras nearby." }]
+$inventory = [{ name: "Iron Longsword", type: "weapon", qty: 1, desc: "A reliable blade, well-balanced and sharp." }, { name: "Leather Armor", type: "armor", qty: 1, desc: "Supple hide armor offering decent protection." }, { name: "Health Potion", type: "consumable", qty: 3, desc: "Restores 25 HP when consumed." }, { name: "Mana Elixir", type: "consumable", qty: 2, desc: "Restores 15 MP when consumed." }, { name: "Torch", type: "utility", qty: 5, desc: "Provides light in dark places." }, { name: "Old Map Fragment", type: "quest", qty: 1, desc: "A torn piece of parchment showing a path to the Sunken Vault." }, { name: "Silver Ring", type: "accessory", qty: 1, desc: "A ring humming with faint enchantment. +5 MP." }, { name: "Dried Rations", type: "consumable", qty: 8, desc: "Travel food. Not tasty, but sustaining." }]
+$journal = [{ title: "The Ashen Covenant", status: "active", text: "A secret order has been gathering power in the northern wastes. Investigate the ruins of Kael'thar to find evidence of their plans." }, { title: "The Missing Merchant", status: "active", text: "Merchant Aldric has not returned from the Thornwood. His wife asks you to find him." }, { title: "Rat Problem", status: "complete", text: "Cleared the cellar of the Rusted Flagon inn of giant rats. Innkeeper Bram was grateful." }]
+$inCombat = false
+$currentEnemy = ""
+$enemyHp = 0
+$enemyHpMax = 0
