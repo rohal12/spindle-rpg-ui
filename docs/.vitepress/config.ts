@@ -25,6 +25,7 @@ export default defineConfig({
         items: [
           { text: 'What is Spindle Starter?', link: '/' },
           { text: 'Getting Started', link: '/getting-started' },
+          { text: 'Dev Container', link: '/dev-container' },
         ],
       },
       {
